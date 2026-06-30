@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:field_star_customer_app/model/raise_complaint_model.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +12,7 @@ class ScheduleServicePage extends StatefulWidget {
   final String categoryName;
   final String equipmentName;
   final String problemDescription;
-  final File? imageFile;
+final Uint8List? imageBytes;
   final String? audioPath;
   final String? priorityStatus;
 
@@ -21,7 +22,7 @@ class ScheduleServicePage extends StatefulWidget {
     required this.categoryName,
     required this.equipmentName,
     required this.problemDescription,
-    this.imageFile,
+    this.imageBytes,
     this.audioPath,
     this.priorityStatus,
   });
@@ -46,31 +47,30 @@ class _ScheduleServicePageState extends State<ScheduleServicePage> {
     return (1000 + random.nextInt(9000)).toString();
   }
 //========================submit complaint================================
-  Future<void> _submitFullcomplaint(
+ Future<void> _submitFullcomplaint(
     RaiseComplaintModel complaint, {
-    File? imageFile,
+    Uint8List? imageBytes,
   }) async {
     final user = Supabase.instance.client.auth.currentUser;
     if (user == null) throw Exception('User not logged in');
 
     String? imageUrl;
-    if (imageFile != null) {
+    if (imageBytes != null) {
       try {
         final path =
             '${complaint.tickectid}/${DateTime.now().millisecondsSinceEpoch}';
-       
+
         await Supabase.instance.client.storage
             .from('images')
-            .upload(path, imageFile);
+            .uploadBinary(path, imageBytes);
 
         imageUrl = Supabase.instance.client.storage
             .from('images')
-            .getPublicUrl(path);        
+            .getPublicUrl(path);
       } catch (e) {
-       
-        rethrow; 
+        rethrow;
       }
-    } 
+    }
 
     await Supabase.instance.client.from('Raise_complaint').insert({
       'Category_name': complaint.categoryName,
@@ -107,7 +107,7 @@ class _ScheduleServicePageState extends State<ScheduleServicePage> {
 
       await _submitFullcomplaint(
         complaint,
-        imageFile: widget.imageFile, 
+        imageBytes: widget.imageBytes,
       );
 
       if (mounted) {

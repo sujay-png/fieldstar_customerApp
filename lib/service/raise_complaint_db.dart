@@ -48,7 +48,7 @@ class RaiseComplaintDb {
 
       final response = await _supabase
           .from('Raise_complaint')
-          .select()
+          .select('*, complaint_technicians(technician_name)')
           .eq('customer_id', user.id)
           .order('created_at', ascending: false);
 

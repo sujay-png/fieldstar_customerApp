@@ -7,29 +7,34 @@ class TechdetaisDb {
   //===============================Fetch Techname============================
 
 
-Future<TechModel?> fetchTechDetails(String ticketId) async {
+Future<List<TechModel>> fetchTechDetails(String ticketId) async {
+  // 1. Get the complaint's internal id from the ticket id
   final complaintResponse = await _supabase
       .from('Raise_complaint')
-      .select('technician_id')
+      .select('id')
       .eq('tickectid', ticketId)
       .maybeSingle();
 
-  if (complaintResponse == null ||
-      complaintResponse['technician_id'] == null) {
-    return null;
+  if (complaintResponse == null || complaintResponse['id'] == null) {
+    return [];
   }
 
-  final technicianId = complaintResponse['technician_id'];
+  final complaintId = complaintResponse['id'];
 
-  final technicianResponse = await _supabase
-      .from('technician')
-      .select()
-      .eq('id', technicianId)
-      .maybeSingle();
+  // 2. Get all technicians assigned to this complaint, joined with technician details
+  final assignedResponse = await _supabase
+      .from('complaint_technicians')
+      .select('technician(*)')
+      .eq('complaint_id', complaintId);
 
-  if (technicianResponse == null) return null;
+  if (assignedResponse == null || (assignedResponse as List).isEmpty) {
+    return [];
+  }
 
-  return TechModel.fromMap(technicianResponse);
+  return (assignedResponse)
+      .where((row) => row['technician'] != null)
+      .map((row) => TechModel.fromMap(row['technician'] as Map<String, dynamic>))
+      .toList();
 }
 Future<int> generateInvoiceNumber() async {
   final response = await _supabase

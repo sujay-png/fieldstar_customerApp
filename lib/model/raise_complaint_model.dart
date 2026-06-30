@@ -42,6 +42,16 @@ class RaiseComplaintModel {
   });
 
   factory RaiseComplaintModel.fromMap(Map<String, dynamic> map) {
+
+  String? technicianName;
+  final techList = map['complaint_technicians'];
+  if (techList is List && techList.isNotEmpty) {
+    technicianName = techList
+        .map((t) => t['technician_name']?.toString() ?? '')
+        .where((name) => name.isNotEmpty)
+        .join(', ');
+  }
+
   return RaiseComplaintModel(
     id: (map['id'] as num?)?.toInt(),
     categoryName: map['Category_name']?.toString() ?? '',
@@ -54,12 +64,11 @@ class RaiseComplaintModel {
     imageUrl: map['image_url']?.toString(),
     audioUrl: map['audio_url']?.toString(),
     complaintStatus: map['complaint_status']?.toString(),
-    technicianName: map['technician_name']?.toString(),
+    technicianName: technicianName,
     customerId: map['customer_id']?.toString(),
-    techstatus: map['tech_status']?.toString()
+    techstatus: map['tech_status']?.toString(),
   );
 }
-
   Map<String, dynamic> toMap() {
     return {
       'Category_name': categoryName,

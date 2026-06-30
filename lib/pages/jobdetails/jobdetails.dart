@@ -16,7 +16,7 @@ class Jobdetails extends StatefulWidget {
 }
 
 class _JobdetailsState extends State<Jobdetails> {
-  TechModel? _techDetails;
+  List<TechModel> _techDetailsList = [];
   final techdb = TechdetaisDb();
 
   @override
@@ -26,8 +26,8 @@ class _JobdetailsState extends State<Jobdetails> {
   }
 
   Future<void> _loadTech() async {
-    final tech = await techdb.fetchTechDetails(widget.complaint.tickectid);
-    setState(() => _techDetails = tech);
+    final techs = await techdb.fetchTechDetails(widget.complaint.tickectid);
+    setState(() => _techDetailsList = techs);
   }
 
   @override
@@ -56,7 +56,7 @@ class _JobdetailsState extends State<Jobdetails> {
     }
 
     return Scaffold(
-        backgroundColor: Colors.white70,
+      backgroundColor: Colors.white70,
 
       appBar: AppBar(
         backgroundColor: Colors.white70,
@@ -75,13 +75,16 @@ class _JobdetailsState extends State<Jobdetails> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  _techDetails != null
-                      ? 'Technician ID: ${_techDetails!.techId}'
+                  _techDetailsList.isNotEmpty
+                      ? 'Technician ID: ${_techDetailsList.map((t) => t.techId).join(', ')}'
                       : 'Fetching technician...',
                   style: const TextStyle(color: Colors.black54, fontSize: 12),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
                   decoration: BoxDecoration(
                     color: statusBgColor,
                     borderRadius: BorderRadius.circular(20),
@@ -105,78 +108,113 @@ class _JobdetailsState extends State<Jobdetails> {
         child: Column(
           children: [
             // ── Technician card ───────────────────────────────────────
-            _techDetails == null
-                ? const Center(child: Padding(
-                    padding: EdgeInsets.all(20),
-                    child: Text('Technician not assigned'),
-                  ))
-                : Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(15),
-                    decoration: const BoxDecoration(
-                      color: Colors.deepOrange,
+            _techDetailsList.isEmpty
+                ? const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(20),
+                      child: Text('Technician not assigned'),
                     ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const CircleAvatar(
-                          backgroundColor: Colors.white,
-                          radius: 30,
-                          child: Icon(Icons.person, size: 25, color: Colors.deepOrange),
+                  )
+                : Column(
+                    children: _techDetailsList.map((tech) {
+                      return Container(
+                        width: double.infinity,
+                        margin: const EdgeInsets.only(bottom: 2),
+                        padding: const EdgeInsets.all(15),
+                        decoration: const BoxDecoration(
+                          color: Colors.deepOrange,
                         ),
-                        const SizedBox(width: 15),
-                        Column(
+                        child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              _techDetails!.fullName,
-                              style: const TextStyle(color: Colors.white, fontSize: 18),
+                            const CircleAvatar(
+                              backgroundColor: Colors.white,
+                              radius: 30,
+                              child: Icon(
+                                Icons.person,
+                                size: 25,
+                                color: Colors.deepOrange,
+                              ),
                             ),
-                            Text(
-                              'Technician ID: ${_techDetails!.techId}',
-                              style: const TextStyle(color: Colors.white, fontSize: 14),
-                            ),
-                            const SizedBox(height: 15),
-                            Text(
-                              _techDetails!.phone,
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                            const SizedBox(height: 15),
-                            Row(
+                            const SizedBox(width: 15),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                ElevatedButton(
-                                  onPressed: () => _makeCall(_techDetails!.phone),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.deepOrange.withValues(alpha: 0.5),
-                                  ),
-                                  child: const Row(
-                                    children: [
-                                      Icon(Icons.phone, color: Colors.white),
-                                      SizedBox(width: 10),
-                                      Text('Call', style: TextStyle(color: Colors.white70)),
-                                    ],
+                                Text(
+                                  tech.fullName,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
                                   ),
                                 ),
-                                const SizedBox(width: 15),
-                                ElevatedButton(
-                                  onPressed: () => _sendSms(_techDetails!.phone),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.deepOrange.withValues(alpha: 0.5),
+                                Text(
+                                  'Technician ID: ${tech.techId}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
                                   ),
-                                  child: const Row(
-                                    children: [
-                                      Icon(Icons.message, color: Colors.white),
-                                      SizedBox(width: 10),
-                                      Text('SMS', style: TextStyle(color: Colors.white70)),
-                                    ],
-                                  ),
+                                ),
+                                const SizedBox(height: 15),
+                                Text(
+                                  tech.phone,
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                                const SizedBox(height: 15),
+                                Row(
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () => _makeCall(tech.phone),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.deepOrange
+                                            .withValues(alpha: 0.5),
+                                      ),
+                                      child: const Row(
+                                        children: [
+                                          Icon(
+                                            Icons.phone,
+                                            color: Colors.white,
+                                          ),
+                                          SizedBox(width: 10),
+                                          Text(
+                                            'Call',
+                                            style: TextStyle(
+                                              color: Colors.white70,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(width: 15),
+                                    ElevatedButton(
+                                      onPressed: () => _sendSms(tech.phone),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.deepOrange
+                                            .withValues(alpha: 0.5),
+                                      ),
+                                      child: const Row(
+                                        children: [
+                                          Icon(
+                                            Icons.message,
+                                            color: Colors.white,
+                                          ),
+                                          SizedBox(width: 10),
+                                          Text(
+                                            'SMS',
+                                            style: TextStyle(
+                                              color: Colors.white70,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
                           ],
                         ),
-                      ],
-                    ),
+                      );
+                    }).toList(),
                   ),
 
             // ── Timeline ──────────────────────────────────────────────
@@ -222,7 +260,11 @@ class _JobdetailsState extends State<Jobdetails> {
                               ? const Color(0xFF10B981)
                               : Colors.grey.shade300,
                           child: item.completed
-                              ? const Icon(Icons.check, color: Colors.white, size: 16)
+                              ? const Icon(
+                                  Icons.check,
+                                  color: Colors.white,
+                                  size: 16,
+                                )
                               : null,
                         );
                       },
@@ -238,7 +280,9 @@ class _JobdetailsState extends State<Jobdetails> {
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
-                                  color: item.completed ? Colors.black : Colors.grey,
+                                  color: item.completed
+                                      ? Colors.black
+                                      : Colors.grey,
                                 ),
                               ),
                               const SizedBox(height: 4),
@@ -246,7 +290,9 @@ class _JobdetailsState extends State<Jobdetails> {
                                 item.time,
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: item.completed ? Colors.black54 : Colors.grey,
+                                  color: item.completed
+                                      ? Colors.black54
+                                      : Colors.grey,
                                 ),
                               ),
                             ],
@@ -266,23 +312,28 @@ class _JobdetailsState extends State<Jobdetails> {
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
-                onPressed: _techDetails == null
+                onPressed: _techDetailsList.isEmpty
                     ? null // disabled until tech loads
                     : () => context.go(
-                          '/payment',
-                          extra: {
-                            'ticketId': complaint.tickectid,
-                            'technicianId': _techDetails!.techId,
-                            'technicianName': _techDetails!.fullName,
-                            'equipment': complaint.serviceRequired,
-                            'serviceDate': complaint.date?.toString() ?? '',
-                          },
-                        ),
+                        '/payment',
+                        extra: {
+                          'ticketId': complaint.tickectid,
+                          'technicianId': _techDetailsList
+                              .map((t) => t.techId)
+                              .join(', '),
+                          'technicianName': _techDetailsList
+                              .map((t) => t.fullName)
+                              .join(', '),
+                          'equipment': complaint.serviceRequired,
+                          'serviceDate': complaint.date?.toString() ?? '',
+                        },
+                      ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF2C313A),
                   elevation: 0,
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
                 child: const Text(
                   "View Invoice & Payment",
@@ -303,16 +354,27 @@ class _JobdetailsState extends State<Jobdetails> {
 
   List<TimelineItem> getTimelineItems(String status) {
     return [
-      TimelineItem(title: "Complaint Registered", time: "Completed", completed: true),
+      TimelineItem(
+        title: "Complaint Registered",
+        time: "Completed",
+        completed: true,
+      ),
       TimelineItem(
         title: "Technician Assigned",
-        time: status == "Assigned" || status == "Pending" || status == "Completed"
-            ? "Completed" : "Pending",
-        completed: status == "Assigned" || status == "In Progress" || status == "Completed",
+        time:
+            status == "Assigned" || status == "Pending" || status == "Completed"
+            ? "Completed"
+            : "Pending",
+        completed:
+            status == "Assigned" ||
+            status == "In Progress" ||
+            status == "Completed",
       ),
       TimelineItem(
         title: "Service in Progress",
-        time: status == "In Progress" || status == "Completed" ? "Completed" : "Pending",
+        time: status == "In Progress" || status == "Completed"
+            ? "Completed"
+            : "Pending",
         completed: status == "In Progress" || status == "Completed",
       ),
       TimelineItem(
@@ -328,8 +390,9 @@ class _JobdetailsState extends State<Jobdetails> {
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri);
     } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Could not open dialer')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Could not open dialer')));
     }
   }
 
@@ -338,8 +401,9 @@ class _JobdetailsState extends State<Jobdetails> {
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri);
     } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Could not open SMS app')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Could not open SMS app')));
     }
   }
 }

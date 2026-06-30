@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:field_star_customer_app/pages/Raisecomplaint/shedule_service.dart';
 import 'package:flutter/material.dart';
@@ -10,22 +11,23 @@ import 'package:record/record.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class DescribeProblemPage extends StatefulWidget {
- final String tickedID;
-  final String categoryName; 
-  final String equipmentName;  
+  final String tickedID;
+  final String categoryName;
+  final String equipmentName;
   final String problemDescription;
-  const DescribeProblemPage({super.key, 
-  required this.tickedID, 
-  required this.categoryName,
-   required this.equipmentName, 
-   required this.problemDescription});
+  const DescribeProblemPage({
+    super.key,
+    required this.tickedID,
+    required this.categoryName,
+    required this.equipmentName,
+    required this.problemDescription,
+  });
 
   @override
   State<DescribeProblemPage> createState() => _DescribeProblemPageState();
 }
 
 class _DescribeProblemPageState extends State<DescribeProblemPage> {
-
   final AudioRecorder audioRecorder = AudioRecorder();
   bool isrecoding = false;
   bool playing = false;
@@ -33,7 +35,8 @@ class _DescribeProblemPageState extends State<DescribeProblemPage> {
   String? recordingPath;
   final problemCtrl = TextEditingController();
   String priority = 'Medium';
-  File? _imageFile;
+  Uint8List? _imageBytes;
+  XFile? _pickedImage;
 
   @override
   void dispose() {
@@ -47,7 +50,7 @@ class _DescribeProblemPageState extends State<DescribeProblemPage> {
 
     return Scaffold(
       backgroundColor: const Color(0xffF8FAFC),
- //===========Appbar==============================
+      //===========Appbar==============================
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: .5,
@@ -100,7 +103,7 @@ class _DescribeProblemPageState extends State<DescribeProblemPage> {
 
               const Text('Problem Description', style: TextStyle(fontSize: 12)),
               const SizedBox(height: 8),
-//==========================Problem description textbox=====================
+              //==========================Problem description textbox=====================
               TextField(
                 controller: problemCtrl,
                 maxLines: 5,
@@ -115,7 +118,7 @@ class _DescribeProblemPageState extends State<DescribeProblemPage> {
               ),
 
               const SizedBox(height: 16),
-//===================voice and photo button=======================
+              //===================voice and photo button=======================
               Row(
                 children: [
                   Expanded(
@@ -141,9 +144,9 @@ class _DescribeProblemPageState extends State<DescribeProblemPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _imageFile != null
-                      ? Image.file(
-                          _imageFile!,
+                  _imageBytes != null
+                      ? Image.memory(
+                          _imageBytes!,
                           width: 80,
                           height: 80,
                           fit: BoxFit.cover,
@@ -167,7 +170,7 @@ class _DescribeProblemPageState extends State<DescribeProblemPage> {
                   ),
                 ],
               ),
-//============================Priority level======================================
+              //============================Priority level======================================
               const Text('Priority Level', style: TextStyle(fontSize: 12)),
               const SizedBox(height: 8),
 
@@ -208,7 +211,7 @@ class _DescribeProblemPageState extends State<DescribeProblemPage> {
                 }).toList(),
               ),
 
-              const SizedBox(height: 280,),
+              const SizedBox(height: 280),
 
               Row(
                 children: [
@@ -218,7 +221,7 @@ class _DescribeProblemPageState extends State<DescribeProblemPage> {
                       child: const Text('Back'),
                     ),
                   ),
-//=====================continue button=====================================
+                  //=====================continue button=====================================
                   const SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton(
@@ -233,7 +236,7 @@ class _DescribeProblemPageState extends State<DescribeProblemPage> {
                                     equipmentName: widget.equipmentName,
                                     problemDescription: problemCtrl.text.trim(),
                                     priorityStatus: priority,
-                                    imageFile: _imageFile,
+                                    imageBytes: _imageBytes,
                                   ),
                                 ),
                               );
@@ -354,25 +357,65 @@ class _DescribeProblemPageState extends State<DescribeProblemPage> {
 
     //Upload Image Preview
     if (image != null) {
+      final bytes = await image.readAsBytes();
       setState(() {
-        _imageFile = File(image.path);
+        _pickedImage = image;
+        _imageBytes = bytes;
       });
     }
   }
 
   //====================Upload========================
   Future uploadImage(BuildContext context) async {
-    if (_imageFile == null) return;
+    if (_imageBytes == null) return;
     final fileName = DateTime.now().microsecondsSinceEpoch.toString();
     final path = 'uploads/$fileName';
 
     await Supabase.instance.client.storage
         .from('images')
-        .upload(path, _imageFile!)
+        .uploadBinary(path, _imageBytes!)
         .then(
           (value) => ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Image Uploaded successfully')),
           ),
         );
+  }
+}
+
+//===============================Checkbox widget =======================================
+class CheckboxExample extends StatefulWidget {
+  const CheckboxExample({super.key});
+
+  @override
+  State<CheckboxExample> createState() => _CheckboxExampleState();
+}
+
+class _CheckboxExampleState extends State<CheckboxExample> {
+  bool isChecked = false;
+
+  @override
+  Widget build(BuildContext context) {
+    Color getColor(Set<WidgetState> states) {
+      const Set<WidgetState> interactiveStates = <WidgetState>{
+        WidgetState.pressed,
+        WidgetState.hovered,
+        WidgetState.focused,
+      };
+      if (states.any(interactiveStates.contains)) {
+        return Colors.blue;
+      }
+      return Colors.red;
+    }
+
+    return Checkbox(
+      checkColor: Colors.white,
+      fillColor: WidgetStateProperty.resolveWith(getColor),
+      value: isChecked,
+      onChanged: (bool? value) {
+        setState(() {
+          isChecked = value!;
+        });
+      },
+    );
   }
 }

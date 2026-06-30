@@ -119,12 +119,23 @@ class InvoicePaymentPage extends StatefulWidget {
 class _InvoicePaymentPageState extends State<InvoicePaymentPage> {
   final repo = TechdetaisDb();
   String _formatDate(DateTime date) {
-  const months = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-  ];
-  return '${months[date.month - 1]} ${date.day}, ${date.year}';
-}
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    return '${months[date.month - 1]} ${date.day}, ${date.year}';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -144,8 +155,8 @@ class _InvoicePaymentPageState extends State<InvoicePaymentPage> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-//==================Fetch tickectID=============================
-            FutureBuilder<TechModel?>(
+            //==================Fetch tickectID=============================
+            FutureBuilder<List<TechModel>>(
               future: repo.fetchTechDetails(widget.ticketId),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -156,16 +167,16 @@ class _InvoicePaymentPageState extends State<InvoicePaymentPage> {
                   return const Center(child: Text('Technician not assigned'));
                 }
 
-                final techDetails = snapshot.data!;
+                final techList = snapshot.data!;
                 return Text(
-                  'Technician ID: ${techDetails.techId}',
+                  'Technician ID: ${techList.map((t) => t.techId).join(', ')}',
                   style: TextStyle(color: Colors.blueGrey, fontSize: 11),
                 );
               },
             ),
           ],
         ),
-//==========================Download recipt option=======================
+        //==========================Download recipt option=======================
         actions: [
           CircleAvatar(
             backgroundColor: const Color(0xFFF3F4F6),
@@ -182,7 +193,7 @@ class _InvoicePaymentPageState extends State<InvoicePaymentPage> {
         padding: const EdgeInsets.all(14),
         child: Column(
           children: [
-//====================== Invoice Card=========================
+            //====================== Invoice Card=========================
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(14),
@@ -223,14 +234,20 @@ class _InvoicePaymentPageState extends State<InvoicePaymentPage> {
                   ),
 
                   const SizedBox(height: 8),
-                Text(
-  'Invoice #INV-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
-  style: const TextStyle(color: Colors.blueGrey, fontSize: 12),
-),
-Text(
-  'Date: ${_formatDate(DateTime.now())}',
-  style: const TextStyle(color: Colors.blueGrey, fontSize: 11),
-),
+                  Text(
+                    'Invoice #INV-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
+                    style: const TextStyle(
+                      color: Colors.blueGrey,
+                      fontSize: 12,
+                    ),
+                  ),
+                  Text(
+                    'Date: ${_formatDate(DateTime.now())}',
+                    style: const TextStyle(
+                      color: Colors.blueGrey,
+                      fontSize: 11,
+                    ),
+                  ),
                   const Divider(height: 28),
 
                   const Text(
@@ -282,162 +299,161 @@ Text(
 
             const SizedBox(height: 14),
 
- //===================== Payment Success==========================
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(14),
-              decoration: InvoicePaymentPage._cardDecoration(),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      const CircleAvatar(
-                        radius: 16,
-                        backgroundColor: Color(0xFFD1FAE5),
-                        child: Icon(
-                          Icons.check_circle_outline,
-                          color: Color(0xFF10B981),
-                          size: 20,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                       Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Payment Successful",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15,
-                              ),
-                            ),
-                            SizedBox(height: 3),
-                            
-                            Text(
-                            
-                             'Paid via UPI on  ${_formatDate(DateTime.now())}',
-                              style: TextStyle(
-                                color: Colors.blueGrey,
-                                fontSize: 11,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+            //===================== Payment Success==========================
+            // Container(
+            //   width: double.infinity,
+            //   padding: const EdgeInsets.all(14),
+            //   decoration: InvoicePaymentPage._cardDecoration(),
+            //   child: Column(
+            //     children: [
+            //       Row(
+            //         children: [
+            //           const CircleAvatar(
+            //             radius: 16,
+            //             backgroundColor: Color(0xFFD1FAE5),
+            //             child: Icon(
+            //               Icons.check_circle_outline,
+            //               color: Color(0xFF10B981),
+            //               size: 20,
+            //             ),
+            //           ),
+            //           const SizedBox(width: 12),
+            //           Expanded(
+            //             child: Column(
+            //               crossAxisAlignment: CrossAxisAlignment.start,
+            //               children: [
+            //                 Text(
+            //                   "Payment Successful",
+            //                   style: TextStyle(
+            //                     fontWeight: FontWeight.bold,
+            //                     fontSize: 15,
+            //                   ),
+            //                 ),
+            //                 SizedBox(height: 3),
 
-                  const SizedBox(height: 16),
+            //                 Text(
+            //                   'Paid via UPI on  ${_formatDate(DateTime.now())}',
+            //                   style: TextStyle(
+            //                     color: Colors.blueGrey,
+            //                     fontSize: 11,
+            //                   ),
+            //                 ),
+            //               ],
+            //             ),
+            //           ),
+            //         ],
+            //       ),
 
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF8FAFC),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Column(
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                "Transaction ID:",
-                                style: TextStyle(
-                                  color: Colors.blueGrey,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ),
-                            Text(
-                              "TXN20260525143045",
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                "Payment Method:",
-                                style: TextStyle(
-                                  color: Colors.blueGrey,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ),
-                            Text(
-                              "UPI - fieldstar@paytm",
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            //       const SizedBox(height: 16),
+
+            //       Container(
+            //         padding: const EdgeInsets.all(12),
+            //         decoration: BoxDecoration(
+            //           color: const Color(0xFFF8FAFC),
+            //           borderRadius: BorderRadius.circular(8),
+            //         ),
+            //         child: const Column(
+            //           children: [
+            //             Row(
+            //               children: [
+            //                 Expanded(
+            //                   child: Text(
+            //                     "Transaction ID:",
+            //                     style: TextStyle(
+            //                       color: Colors.blueGrey,
+            //                       fontSize: 12,
+            //                     ),
+            //                   ),
+            //                 ),
+            //                 Text(
+            //                   "TXN20260525143045",
+            //                   style: TextStyle(
+            //                     fontSize: 11,
+            //                     fontWeight: FontWeight.w600,
+            //                   ),
+            //                 ),
+            //               ],
+            //             ),
+            //             SizedBox(height: 8),
+            //             Row(
+            //               children: [
+            //                 Expanded(
+            //                   child: Text(
+            //                     "Payment Method:",
+            //                     style: TextStyle(
+            //                       color: Colors.blueGrey,
+            //                       fontSize: 12,
+            //                     ),
+            //                   ),
+            //                 ),
+            //                 Text(
+            //                   "UPI - fieldstar@paytm",
+            //                   style: TextStyle(
+            //                     fontSize: 11,
+            //                     fontWeight: FontWeight.w600,
+            //                   ),
+            //                 ),
+            //               ],
+            //             ),
+            //           ],
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
 
             const SizedBox(height: 14),
-//================== Other Payment Methods==================================
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(14),
-              decoration: InvoicePaymentPage._cardDecoration(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Other Payment Methods",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  const SizedBox(height: 14),
+            //================== Other Payment Methods==================================
+            // Container(
+            //   width: double.infinity,
+            //   padding: const EdgeInsets.all(14),
+            //   decoration: InvoicePaymentPage._cardDecoration(),
+            //   child: Column(
+            //     crossAxisAlignment: CrossAxisAlignment.start,
+            //     children: [
+            //       const Text(
+            //         "Other Payment Methods",
+            //         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            //       ),
+            //       const SizedBox(height: 14),
 
-                  InvoicePaymentPage._paymentMethod(
-                    icon: Icons.qr_code_2,
-                    title: "Scan QR Code",
-                    subtitle: "Pay using any UPI app",
-                    isSelected: true,
-                    onclick: (){
-                     _showQrBottomSheet(context);
-                    }
-                  ),
+            //       InvoicePaymentPage._paymentMethod(
+            //         icon: Icons.qr_code_2,
+            //         title: "Scan QR Code",
+            //         subtitle: "Pay using any UPI app",
+            //         isSelected: true,
+            //         onclick: () {
+            //           _showQrBottomSheet(context);
+            //         },
+            //       ),
 
-                  const SizedBox(height: 12),
+            //       const SizedBox(height: 12),
 
-                  InvoicePaymentPage._paymentMethod(
-                    icon: Icons.credit_card,
-                    title: "Cash Payment",
-                    subtitle: "Pay to technician directly",
-                    isSelected: false,
-                     onclick: (){
-                        _showQrBottomSheet(context);
-                    }
-                  ),
-                ],
-              ),
-            ),
+            //       InvoicePaymentPage._paymentMethod(
+            //         icon: Icons.credit_card,
+            //         title: "Cash Payment",
+            //         subtitle: "Pay to technician directly",
+            //         isSelected: false,
+            //         onclick: () {
+            //           _showQrBottomSheet(context);
+            //         },
+            //       ),
+            //     ],
+            //   ),
+            // ),
 
             const SizedBox(height: 90),
           ],
         ),
       ),
-//========================Rate service Button==========================
+      //========================Rate service Button==========================
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(14),
         color: Colors.white,
         child: Row(
           children: [
-            SizedBox(
-              width: 180,
+            Expanded(
+             
               child: OutlinedButton.icon(
                 onPressed: downloadReceipt,
                 icon: const Icon(Icons.download, size: 18),
@@ -449,8 +465,8 @@ Text(
               ),
             ),
             const SizedBox(width: 10),
-            SizedBox(
-              width: 180,
+            Expanded(
+            
               child: ElevatedButton(
                 onPressed: () {
                   context.go(
@@ -594,57 +610,53 @@ Text(
 
   //============================Qr Code For Payment============================
   void _showQrBottomSheet(BuildContext context) {
-  // UPI payment string — replace with your actual UPI ID and amount
-  final upiString =
-      'upi://pay?pa=fieldstar@paytm&pn=Field Star Services&am=6726&cu=INR&tn=Invoice ${widget.ticketId}';
+    // UPI payment string — replace with your actual UPI ID and amount
+    final upiString =
+        'upi://pay?pa=fieldstar@paytm&pn=Field Star Services&am=6726&cu=INR&tn=Invoice ${widget.ticketId}';
 
-  showModalBottomSheet(
-    context: context,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(5)),
-    ),
-    builder: (_) => Padding(
-      padding: const EdgeInsets.all(10),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: Colors.grey.shade300,
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          const SizedBox(height: 20),
-          const Text(
-            'Scan to Pay',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 6),
-          const Text(
-            'Use any UPI app to scan and pay',
-            style: TextStyle(color: Colors.blueGrey, fontSize: 13),
-          ),
-          const SizedBox(height: 24),
-          QrImageView(
-            data: upiString,
-            version: QrVersions.auto,
-            size: 220,
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            'fieldstar@paytm',
-            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-          ),
-          const Text(
-            'Amount: Rs. 6726',
-            style: TextStyle(color: Colors.blueGrey, fontSize: 13),
-          ),
-          const SizedBox(height: 24),
-        ],
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(5)),
       ),
-    ),
-  );
-}
+      builder: (_) => Padding(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Scan to Pay',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 6),
+            const Text(
+              'Use any UPI app to scan and pay',
+              style: TextStyle(color: Colors.blueGrey, fontSize: 13),
+            ),
+            const SizedBox(height: 24),
+            QrImageView(data: upiString, version: QrVersions.auto, size: 220),
+            const SizedBox(height: 16),
+            const Text(
+              'fieldstar@paytm',
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+            ),
+            const Text(
+              'Amount: Rs. 6726',
+              style: TextStyle(color: Colors.blueGrey, fontSize: 13),
+            ),
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
 }
