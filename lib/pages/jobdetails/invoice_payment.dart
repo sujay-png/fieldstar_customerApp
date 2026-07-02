@@ -143,7 +143,12 @@ class _InvoicePaymentPageState extends State<InvoicePaymentPage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: BackButton(color: Colors.black),
+      leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          onPressed: () {
+            context.push('/Home');
+          },
+      ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
