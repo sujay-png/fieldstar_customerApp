@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:field_star_customer_app/auth/login.dart';
 import 'package:field_star_customer_app/model/raise_complaint_model.dart';
 import 'package:field_star_customer_app/navbar/shell.dart';
@@ -12,7 +11,6 @@ import 'package:field_star_customer_app/pages/profile/profile_page.dart';
 import 'package:field_star_customer_app/pages/rating/rating.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class GoRouterRefreshStream extends ChangeNotifier {
@@ -132,18 +130,18 @@ final GoRouter appRouter = GoRouter(
         GoRoute(
           path: '/finalpage',
           builder: (_, _) =>
-              const ThankYouPage(), // ✅ fixed: __ for second param
+              const ThankYouPage(),
         ),
 
         GoRoute(
           path: '/login',
           builder: (_, _) =>
-              const LoginScreen(), // ✅ fixed: __ for second param
+              const LoginScreen(),
         ),
         GoRoute(
           path: '/profile',
           builder: (_, _) =>
-              const ProfilePage(), // ✅ fixed: __ for second param
+              const ProfilePage(), 
         ),
       ],
     ),

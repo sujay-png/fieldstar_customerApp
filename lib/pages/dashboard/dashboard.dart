@@ -128,6 +128,8 @@ class _DashboardState extends State<Dashboard> {
                   fontWeight: FontWeight.w800,
                 ),
               ),
+//=====================================jobsummary card==============================
+              SizedBox(height: 10),
               FutureBuilder<List<RaiseComplaintModel>>(
                 future: repo.Fetchcomplaints(),
                 builder: (context, snapshot) {
@@ -195,6 +197,8 @@ class _DashboardState extends State<Dashboard> {
                   ),
                 ],
               ),
+//====================================Fetch completed complaints and display them=========================
+              const SizedBox(height: 10),
               FutureBuilder<List<RaiseComplaintModel>>(
                 future: repo.fetchCompletedComplaints(),
                 builder: (context, snapshot) {
